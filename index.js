@@ -49,6 +49,12 @@ exports.handler = (event, _, callback) => {
 function respond(code, body, callback) {
   callback(null, { 
     statusCode: code,
-    body: JSON.stringify(body)
+    body: JSON.stringify(body),
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "OPTIONS,POST",
+      "Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token",
+      "Content-Type": "application/json"
+    },
   });
 }
