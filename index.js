@@ -28,11 +28,12 @@ exports.handler = (event, _, callback) => {
     return;
   }
 
+  const postBody = { email_address: email, status: 'subscribed' };
+  const interestId = event.stageVariables.mailchimp_interest_id;
+  if (interestId) postBody.interests = { [interestId]: true };
+
   const mailchimp = new Mailchimp(apiKey);
-  mailchimp.post(`/lists/${listId}/members`, {
-    email_address : email,
-    status : 'subscribed'
-  }).then(function(results) {
+  mailchimp.post(`/lists/${listId}/members`, postBody).then(function(results) {
     console.log(results);
     respond(200, { message: `Successfully subscribed ${email}` }, callback);
     return;
