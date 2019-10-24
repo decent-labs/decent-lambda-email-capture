@@ -1,0 +1,17 @@
+{
+  "name": "lambda-email-capture",
+  "version": "0.0.1",
+  "description": "the lambda function which capture emails",
+  "main": "index.js",
+  "scripts": {
+    "zip": "zip -r -X \"../lambda-email-capture.zip\" *"
+  },
+  "repository": "https://github.com/decentorganization/blockmedx-lambda-email-capture",
+  "author": "adam gall <adam@decentlabs.io>",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "mailchimp-api-v3": "^1.13.1",
+    "validator": "^11.1.0"
+  }
+}
