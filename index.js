@@ -1,22 +1,24 @@
 const validator = require('validator');
 const Mailchimp = require('mailchimp-api-v3');
 
+const { codes, respond } = require('./responses');
+
 exports.handler = (event, _, callback) => {
-  const body = JSON.parse(event.body)
+  const body = JSON.parse(event.body);
   const email = body.email;
-  
+
   if (!email) {
-    respond(422, { message: "Email address not detected in request body" }, callback);
+    respond(codes.error.badRequest.noEmail, email, callback);
     return;
-  };
+  }
 
   if (!validator.isEmail(email)) {
-    respond(422, { message: `${email} is not a valid email address` }, callback);
+    respond(codes.error.badRequest.notValidEmail, email, callback);
     return;
-  };
+  }
 
   if (event.requestContext.stage === 'dev') {
-    respond(200, { message: `Successfully subsicribed ${email} (jk this is a dev environment)` }, callback);
+    respond(codes.success, email, callback);
     return;
   }
 
@@ -24,7 +26,7 @@ exports.handler = (event, _, callback) => {
   const listId = event.stageVariables.mailchimp_list_id;
 
   if (!apiKey || !listId) {
-    respond(500, { message: `Add Mailchimp API Key and List ID to API Gateway Deployment Stage` }, callback);
+    respond(codes.error.internal.badConfig, email, callback);
     return;
   }
 
@@ -33,29 +35,16 @@ exports.handler = (event, _, callback) => {
   if (interestId) postBody.interests = { [interestId]: true };
 
   const mailchimp = new Mailchimp(apiKey);
-  mailchimp.post(`/lists/${listId}/members`, postBody).then(function(results) {
+  mailchimp.post(`/lists/${listId}/members`, postBody).then(function (results) {
     console.log(results);
-    respond(200, { message: `Successfully subscribed ${email}` }, callback);
+    respond(codes.success, email, callback);
     return;
-  }).catch(function(err) {
+  }).catch(function (err) {
     console.log(err);
     if (err.title === "Member Exists") {
-      respond(400, { message: `${email} is already subscribed` }, callback);
+      respond(codes.error.mailchimp.alreadySubscribed, email, callback);
       return;
     }
-    respond(500, { message: `There was an error subscribing ${email}` }, callback);
+    respond(codes.error.internal.unknown, email, callback);
   });
 };
-
-function respond(code, body, callback) {
-  callback(null, { 
-    statusCode: code,
-    body: JSON.stringify(body),
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "OPTIONS,POST",
-      "Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token",
-      "Content-Type": "application/json"
-    },
-  });
-}
