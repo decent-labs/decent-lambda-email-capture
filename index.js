@@ -1,11 +1,16 @@
 const validator = require('validator');
-const Mailchimp = require('mailchimp-api-v3');
+
+const { mailchimp } = require('./mailchimp');
+const { pipedrive } = require('./pipedrive');
 
 const { codes, respond } = require('./responses');
 
 exports.handler = (event, _, callback) => {
   const body = JSON.parse(event.body);
   const email = body.email;
+
+  console.log(`new CTA`);
+  console.log(`post body: ${JSON.stringify(body)}`);
 
   if (!email) {
     respond(codes.error.badRequest.noEmail, email, callback);
@@ -22,29 +27,12 @@ exports.handler = (event, _, callback) => {
     return;
   }
 
-  const apiKey = event.stageVariables.mailchimp_api_key;
-  const listId = event.stageVariables.mailchimp_list_id;
+  const services = [
+    mailchimp(event.stageVariables, email),
+    pipedrive(event.stageVariables, email, body.ctaLocation)
+  ].filter(service => service != null);
 
-  if (!apiKey || !listId) {
-    respond(codes.error.internal.badConfig, email, callback);
-    return;
-  }
-
-  const postBody = { email_address: email, status: 'subscribed' };
-  const interestId = event.stageVariables.mailchimp_interest_id;
-  if (interestId) postBody.interests = { [interestId]: true };
-
-  const mailchimp = new Mailchimp(apiKey);
-  mailchimp.post(`/lists/${listId}/members`, postBody).then(function (results) {
-    console.log(results);
-    respond(codes.success, email, callback);
-    return;
-  }).catch(function (err) {
-    console.log(err);
-    if (err.title === "Member Exists") {
-      respond(codes.error.mailchimp.alreadySubscribed, email, callback);
-      return;
-    }
-    respond(codes.error.internal.unknown, email, callback);
+  Promise.all(services).then(_ => {
+    respond(codes.success, email, callback)
   });
 };
