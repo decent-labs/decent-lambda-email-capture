@@ -22,10 +22,10 @@ exports.handler = (event, _, callback) => {
     return;
   }
 
-  const apiKey = event.stageVariables.mailchimp_api_key;
-  const listId = event.stageVariables.mailchimp_list_id;
+  const mailchimpApiKey = event.stageVariables.mailchimp_api_key;
+  const mailchimpListId = event.stageVariables.mailchimp_list_id;
 
-  if (!apiKey || !listId) {
+  if (!mailchimpApiKey || !mailchimpListId) {
     respond(codes.error.internal.badConfig, email, callback);
     return;
   }
@@ -34,8 +34,8 @@ exports.handler = (event, _, callback) => {
   const interestId = event.stageVariables.mailchimp_interest_id;
   if (interestId) postBody.interests = { [interestId]: true };
 
-  const mailchimp = new Mailchimp(apiKey);
-  mailchimp.post(`/lists/${listId}/members`, postBody).then(function (results) {
+  const mailchimp = new Mailchimp(mailchimpApiKey);
+  mailchimp.post(`/lists/${mailchimpListId}/members`, postBody).then(function (results) {
     console.log(results);
     respond(codes.success, email, callback);
     return;
