@@ -1,6 +1,7 @@
 const validator = require('validator');
 
 const { mailchimp } = require('./mailchimp');
+const { pipedrive } = require('./pipedrive');
 
 const { codes, respond } = require('./responses');
 
@@ -27,7 +28,8 @@ exports.handler = (event, _, callback) => {
   }
 
   const services = [
-    mailchimp(event.stageVariables, email)
+    mailchimp(event.stageVariables, email),
+    pipedrive(event.stageVariables, email, body.ctaLocation)
   ].filter(service => service != null);
 
   Promise.all(services).then(_ => {
