@@ -7,6 +7,9 @@ exports.handler = (event, _, callback) => {
   const body = JSON.parse(event.body);
   const email = body.email;
 
+  console.log(`new CTA`);
+  console.log(`post body: ${JSON.stringify(body)}`);
+
   if (!email) {
     respond(codes.error.badRequest.noEmail, email, callback);
     return;
