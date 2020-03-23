@@ -6,7 +6,7 @@
   "scripts": {
     "zip": "zip -r -X \"../lambda-email-capture.zip\" *"
   },
-  "repository": "https://github.com/decentorganization/blockmedx-lambda-email-capture",
+  "repository": "https://github.com/decentorganization/decent-lambda-email-capture",
   "author": "adam gall <adam@decentlabs.io>",
   "license": "MIT",
   "private": true,
