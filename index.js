@@ -1,5 +1,7 @@
 const validator = require('validator');
 
+const { mailchimp } = require('./mailchimp');
+
 const { codes, respond } = require('./responses');
 
 exports.handler = (event, _, callback) => {
@@ -23,4 +25,12 @@ exports.handler = (event, _, callback) => {
     respond(codes.success, email, callback);
     return;
   }
+
+  const services = [
+    mailchimp(event.stageVariables, email)
+  ].filter(service => service != null);
+
+  Promise.all(services).then(_ => {
+    respond(codes.success, email, callback)
+  });
 };
