@@ -28,7 +28,7 @@ exports.handler = (event, _, callback) => {
   }
 
   const services = [
-    mailchimp(event.stageVariables, email),
+    mailchimp(event.stageVariables, email, body.ctaLocation),
     pipedrive(event.stageVariables, email, body.ctaLocation)
   ].filter(service => service != null);
 

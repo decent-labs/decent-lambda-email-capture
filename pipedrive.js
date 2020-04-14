@@ -7,7 +7,7 @@ const pipedrive = (vars, email, ctaLocation) => {
   if (!pipedriveApiToken || !pipedriveStageId) return;
 
   const postBody = {
-    title: `${ctaLocation}: ${email}`,
+    title: `${ctaLocation && ctaLocation + ': '}${email}`,
     stage_id: pipedriveStageId
   }
 
